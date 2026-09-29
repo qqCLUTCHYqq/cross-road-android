@@ -36,4 +36,5 @@ export class AudioLifecycle {
     else this.open();
   }
   reset() { this.invalidate(); }
+  snapshot() {return {platform:'Android',hidden:this.hidden,active:this.active,epoch:this.epoch,context:this.owner.graph.ctx?.state||'not started',queuedMs:Math.round(this.owner.graph.queuedAhead()*1000)};}
 }
