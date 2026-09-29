@@ -36,7 +36,11 @@ for(const [name,sha] of Object.entries(lock.files)) {
     if(text.includes('service-worker.js')||text.includes('pwa-loader.js'))throw Error('Unexpected PWA bootstrap');
     result=Buffer.from(text);
   }
-  await fs.writeFile(path.join(output,name),result);
+  // Android asset packaging treats .gz specially. Keep the original compressed
+  // bytes under a neutral suffix; MainActivity serves the original runtime URL.
+  const packagedName=name.endsWith('.gz')?name+'.payload':name;
+  await fs.writeFile(path.join(output,packagedName),result);
+  if(packagedName!==name)await fs.rm(path.join(output,name),{force:true});
 }
 for(const name of await fs.readdir(path.join(root,'web')))await fs.copyFile(path.join(root,'web',name),path.join(output,name));
 console.log(`Prepared pinned runtime ${lock.commit}; Android platform adapters only.`);
