@@ -3,6 +3,7 @@ package io.github.qqclutchyqq.crossroad.android
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
+import java.security.MessageDigest
 
 data class ContentFile(val path: String, val size: Long)
 
@@ -20,7 +21,11 @@ class ContentRanges(
     init {
         require(URL(baseUrl).protocol == "https")
         require(version.matches(Regex("[A-Za-z0-9._-]+")))
-        require(files.all { it.path.matches(Regex("Content/[A-Za-z0-9._-]+")) && it.size > 0 })
+        require(files.all { file ->
+            file.path.startsWith("Content/") && file.path.split('/').all {
+                it.matches(Regex("[A-Za-z0-9._-]+")) && it != "." && it != ".."
+            } && file.size > 0
+        }) { "Unsafe Content manifest path" }
         require(maxBlocks > 0)
         directory.mkdirs()
     }
@@ -32,7 +37,8 @@ class ContentRanges(
         require(offset >= 0 && offset < file.size && offset % blockSize == 0L) { "Invalid range" }
         val end = minOf(file.size, offset + blockSize) - 1
         val length = (end - offset + 1).toInt()
-        val target = File(directory, "${file.path.substringAfter('/')}-${offset}.block")
+        val pathKey = MessageDigest.getInstance("SHA-256").digest(file.path.toByteArray()).joinToString("") { "%02x".format(it) }
+        val target = File(directory, "$pathKey-${offset}.block")
         if (target.isFile && target.length() == length.toLong()) {
             target.setLastModified(System.currentTimeMillis())
             return target.readBytes()
