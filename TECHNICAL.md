@@ -16,7 +16,7 @@ The 11-file Content inventory is pinned. Each requested block verifies the remot
 
 Unchanged: runtime-worker, native/WASM bridge, wasm32 artifacts/metadata, file adapters, Content inventory, native touch-dispatch fixes, save format/schema, PCM mixer/timing/refill protocol. The historical database name `crossroad-ios-v1` is retained as part of the runtime contract; Android's isolated app profile makes this Android-local storage.
 
-Adapted: exactly two app.js imports select Android helpers. game.html retains upstream markup/styles/credits, removes Apple/PWA bootstrap, and adds Android loader/CSS. Generated bundles are not reformatted or manually maintained. Android helpers do not import Safari terminal-touch fallbacks, iOS audio-route recreation, Home Screen lifecycle code or iPhone menus.
+Adapted: exactly two app.js imports select Android helpers. game.html retains upstream markup/styles/credits, removes Apple/PWA bootstrap, and adds Android loader/CSS. Compressed artifacts are packaged with a neutral `.payload` suffix to avoid Android's special gzip asset handling; the shell serves their original `.gz` URLs with unchanged compressed bytes. Generated bundles are not reformatted or manually maintained. Android helpers do not import Safari terminal-touch fallbacks, iOS audio-route recreation, Home Screen lifecycle code or iPhone menus.
 
 ## Platform responsibilities
 
