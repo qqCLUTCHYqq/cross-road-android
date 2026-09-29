@@ -1,0 +1,8 @@
+html,body,#app {margin:0!important;padding:0!important;width:100%;height:100%;background:#000;color:#fff;overflow:hidden}
+#play-area {position:fixed!important;inset:0!important;width:100%!important;height:100%!important;display:flex!important;align-items:center;justify-content:center;margin:0!important;padding:0!important}
+#game {display:block;object-fit:contain;touch-action:none;flex-shrink:0;max-width:none!important;max-height:none!important}
+#app>h1,#app>h2,#app>header,.actions,#app>details {display:none!important}
+#android-diagnostics {box-sizing:border-box;width:94vw;max-height:88vh;overflow:auto;background:#10243d;color:white;border:1px solid #8cc;z-index:10000}
+#android-diagnostics::backdrop {background:#000b}
+#android-diagnostics pre {white-space:pre-wrap;overflow-wrap:anywhere;font:12px monospace}
+#android-diagnostics button {min-height:48px;position:sticky;top:0}
