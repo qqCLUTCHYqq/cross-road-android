@@ -77,6 +77,8 @@ class MainActivity : ComponentActivity() {
                     if (uri.path == "/assets/web/__content") {
                         val bytes = ranges.read(uri.getQueryParameter("path"), uri.getQueryParameter("offset"), uri.getQueryParameter("version"))
                         response(200, "OK", "application/octet-stream", bytes)
+                    } else if (uri.path in setOf("/assets/web/libcocos2dcpp-aot.wasm.gz", "/assets/web/libcocos2dcpp-image.bin.gz")) {
+                        WebResourceResponse("application/octet-stream", null, assets.open("web/" + uri.lastPathSegment + ".payload"))
                     } else loader.shouldInterceptRequest(uri) ?: response(404, "Not Found", "text/plain", byteArrayOf())
                 } catch (error: Exception) {
                     Log.w("CrossRoad", "Content request failed: ${error.message}")
