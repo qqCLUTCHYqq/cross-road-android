@@ -28,6 +28,6 @@ globalThis.crossroadShowDiagnostics=()=>{
   document.dispatchEvent(new Event('crossroad-overlay'));
   let dialog=document.querySelector('#android-diagnostics');
   if(!dialog){dialog=document.createElement('dialog');dialog.id='android-diagnostics';const close=document.createElement('button');close.textContent='Close diagnostics';close.onclick=()=>dialog.close();dialog.append(close,document.createElement('pre'));document.body.append(dialog);}
-  dialog.querySelector('pre').textContent='Cross Road Android 0.1-poc\n'+navigator.userAgent+'\nVisibility: '+document.visibilityState+'\n'+logs.join('\n');
+  dialog.querySelector('pre').textContent='Cross Road Android 0.1-poc\n'+navigator.userAgent+'\nVisibility: '+document.visibilityState+'\nAudio: '+JSON.stringify(globalThis.crossroadAudioDiagnostics?.()||{})+'\n'+logs.join('\n');
   if(!dialog.open)dialog.showModal();
 };
