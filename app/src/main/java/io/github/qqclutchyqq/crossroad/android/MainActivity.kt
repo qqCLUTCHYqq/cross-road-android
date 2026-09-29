@@ -90,7 +90,8 @@ class MainActivity : ComponentActivity() {
         }
         // Fixed origin and default app profile: do not clear storage on launch/restart.
         val probe = BuildConfig.DEBUG && intent.getBooleanExtra("bootProbe", false)
-        web.loadUrl(if (probe) home.replace("index.html", "probe.html") else home)
+        val gameSmoke = BuildConfig.DEBUG && intent.getBooleanExtra("gameSmoke", false)
+        web.loadUrl(if (probe) home.replace("index.html", "probe.html") else if (gameSmoke) home.replace("index.html", "game.html") else home)
     }
     private fun response(code: Int, reason: String, type: String, bytes: ByteArray) = WebResourceResponse(type, "UTF-8", code, reason,
         mapOf("Cache-Control" to "no-store", "Content-Length" to bytes.size.toString()), ByteArrayInputStream(bytes))
