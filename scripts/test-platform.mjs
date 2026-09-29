@@ -1,0 +1,27 @@
+import fs from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+const root=new URL('../',import.meta.url);
+const source=await fs.readFile(new URL('web/android-runtime.js',root),'utf8');
+class Target {constructor(){this.listeners={};this.style={};}addEventListener(n,f){(this.listeners[n]??=[]).push(f);}removeEventListener(n,f){this.listeners[n]=this.listeners[n].filter(x=>x!==f);}emit(n,e){for(const f of this.listeners[n]||[])f(e);}}
+const win=new Target(),doc=new Target(),canvas=new Target();
+Object.assign(canvas,{width:1280,height:720,getBoundingClientRect:()=>({left:0,top:0,width:640,height:360}),setPointerCapture(){},hasPointerCapture:()=>false});
+const context=vm.createContext({window:win,document:doc,console});
+const {MobilePointer,gamePoint}=vm.runInContext(source.replaceAll('export ','')+';({MobilePointer,gamePoint})',context);
+const events=[];let unlocks=0;const pointer=new MobilePointer(canvas,e=>events.push(e),()=>unlocks++);pointer.attach();
+const touch=(x,y,id=1)=>({clientX:x,clientY:y,pointerId:id,button:0,isPrimary:true,preventDefault(){}});
+canvas.emit('pointerdown',touch(320,180));win.emit('pointerup',touch(320,180));
+assert.deepEqual(events.map(e=>e.kind),[1,3]);assert.equal(events[0].x,.5);assert.equal(events[0].y,.5);
+canvas.emit('pointerdown',touch(20,20));canvas.emit('pointermove',touch(40,40));win.emit('pointercancel',touch(40,40));
+assert.deepEqual(events.slice(-3).map(e=>e.kind),[1,2,4]);
+win.emit('pointerup',touch(40,40));assert.equal(events.length,5);pointer.destroy();assert.equal(unlocks,2);
+const audioSource=await fs.readFile(new URL('web/android-audio.js',root),'utf8');
+const {AudioLifecycle}=vm.runInContext(audioSource.replace('export ','')+';({AudioLifecycle})',context);
+let starts=0,stops=0,resets=0;
+const ctx={state:'running',resume(){this.state='running';return Promise.resolve();},suspend(){this.state='suspended';return Promise.resolve();}};
+const owner={graph:{ctx,open(){return ctx;},resetPcm(){resets++;},onStateChange(){}},queueReporter:{start(){starts++;},stop(){stops++;}}};
+const audio=new AudioLifecycle(owner);assert.equal(await audio.open(true),true);audio.setBackground(true);assert.equal(audio.active,false);assert.equal(ctx.state,'suspended');const epoch=audio.epoch;
+audio.setBackground(false);await Promise.resolve();assert.equal(audio.active,true);assert.ok(audio.epoch>epoch);audio.reset();assert.equal(audio.active,false);assert.ok(starts>0&&stops>0&&resets>0);
+const app=await fs.readFile(new URL('app/build/generated/runtime-assets/web/app.js',root),'utf8');
+assert.ok(app.includes('./android-audio.js'));assert.ok(!app.includes('./audio-lifecycle.js'));
+console.log('PASS: normalized touch, release/cancel, cleanup, Android suspend/resume epochs and platform imports.');
