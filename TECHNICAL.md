@@ -14,7 +14,9 @@ The 11-file Content inventory is pinned. Each requested block verifies the remot
 
 `runtime-lock.json` records the reference commit and every input SHA-256. `scripts/prepare-runtime.mjs` downloads immutable inputs into ignored generated assets, rejecting mismatches. `--source /path/to/verified/Web` supports local preparation. No files are written to the iOS repository.
 
-Unchanged: runtime-worker, native/WASM bridge, wasm32 artifacts/metadata, file adapters, Content inventory, native touch-dispatch fixes, save format/schema, PCM mixer/timing/refill protocol. The historical database name `crossroad-ios-v1` is retained as part of the runtime contract; Android's isolated app profile makes this Android-local storage.
+Unchanged: native/WASM bridge, wasm32 artifacts/metadata, file adapters, Content inventory, native touch-dispatch fixes, save format/schema, PCM mixer/timing/refill protocol. The historical database name `crossroad-ios-v1` is retained as part of the runtime contract; Android's isolated app profile makes this Android-local storage.
+
+The runtime-worker has one guarded build-time replacement extending its existing shader-precision retry to recognize Android ANGLE's equivalent error message. It reuses the existing normalizer/relink only after that specific link failure; successful shaders are untouched. The emulator smoke rejects remaining shader compile/link errors.
 
 Adapted: exactly two app.js imports select Android helpers. game.html retains upstream markup/styles/credits, removes Apple/PWA bootstrap, and adds Android loader/CSS. Compressed artifacts are packaged with a neutral `.payload` suffix to avoid Android's special gzip asset handling; the shell serves their original `.gz` URLs with unchanged compressed bytes. Generated bundles are not reformatted or manually maintained. Android helpers do not import Safari terminal-touch fallbacks, iOS audio-route recreation, Home Screen lifecycle code or iPhone menus.
 
