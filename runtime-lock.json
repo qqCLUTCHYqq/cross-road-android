@@ -1,0 +1,17 @@
+{
+  "repository": "qqCLUTCHYqq/cross-road-ios",
+  "commit": "bb5d3a695b3656f214ade6f5493aff855b0ff006",
+  "originalArchiveSHA256": "963DA2019A04327BFA6CD50F9A58A243AD351B61C56F63AFC4E1270DDB4997F7",
+  "files": {
+    "app.js": "aee75800a4992a02e40d44af2c6f4d416647516674db6f50d623747f5576ec7d",
+    "game.html": "dd2c8a98a11e73961035f8edb4030ec737e856ada23189a9741fc781aeea251b",
+    "runtime-worker.js": "b3338feab15d9365ad71d1e59cf19a9c79bacc7e1b9c2488c2fd72cdae8c589f",
+    "remote-files.js": "e8876ecbdecd7272322ce217bcb8fc23f9166486e49aedfe5a162d1cc8936fb0",
+    "native-files.js": "328674dd145468e390fea198f8806747923133cece130d334e5622b4d053fbff",
+    "content-manifest.json": "08c3f35d6710d5d9941f2a4c0fc49b25143a5e5a621df79960ed03f9dcf3e0fe",
+    "aot-browser.json": "194c50d62b71fd07a741387ea45553f65595d2761aba8f40b7499a88f342a68b",
+    "aot-runtime.json": "fd7fce44a50b926fe601edf7e7934922c0a17b11dee0ce15e9ce08e84b044285",
+    "libcocos2dcpp-aot.wasm.gz": "b9623773214550dabb757696aaee12b8ffc801af214df6917f3b3c111c07fea0",
+    "libcocos2dcpp-image.bin.gz": "a64887c3233064c586ce2b2739d51b728dc3ae2fd109a77de0a4121e4a8a6e6f"
+  }
+}

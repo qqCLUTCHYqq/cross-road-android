@@ -1,0 +1,10 @@
+.gradle/
+**/build/
+.debug/
+local.properties
+.idea/
+*.iml
+*.apk
+*.jks
+*.keystore
+runtime-cache/
