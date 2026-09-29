@@ -18,6 +18,7 @@ import java.io.File
 
 class MainActivity : ComponentActivity() {
     private lateinit var web: WebView
+    private var rendererGone = false
     private val host = "appassets.androidplatform.net"
     private val home = "https://appassets.androidplatform.net/assets/web/index.html"
     private fun local(uri: Uri) = uri.scheme == "https" && uri.host == host && uri.port == -1 && uri.path?.startsWith("/assets/web/") == true
@@ -83,6 +84,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
             override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
+                rendererGone = true
                 AlertDialog.Builder(this@MainActivity).setMessage("Android stopped the WebView. Reopen Cross Road. Previously saved progress is retained.")
                     .setPositiveButton("Close") { _, _ -> finish() }.setCancelable(false).show()
                 (view.parent as? LinearLayout)?.removeView(view); view.destroy(); return true
@@ -97,18 +99,20 @@ class MainActivity : ComponentActivity() {
         mapOf("Cache-Control" to "no-store", "Content-Length" to bytes.size.toString()), ByteArrayInputStream(bytes))
     private fun Int.dp() = (this * resources.displayMetrics.density).toInt()
     override fun onPause() {
-        web.evaluateJavascript("window.crossroadSetBackground?.(true)", null)
-        web.onPause()
+        if (!rendererGone) {
+            web.evaluateJavascript("window.__nativeFlush?.();window.crossroadSetBackground?.(true)", null)
+            web.onPause()
+        }
         super.onPause()
     }
     override fun onResume() {
         super.onResume()
-        if (::web.isInitialized) { web.onResume(); web.evaluateJavascript("window.crossroadSetBackground?.(false)", null) }
+        if (::web.isInitialized && !rendererGone) { web.onResume(); web.evaluateJavascript("window.crossroadSetBackground?.(false)", null) }
     }
     private fun confirmLeave() {
         // Do not navigate to arbitrary history or silently discard an active game.
         AlertDialog.Builder(this).setMessage("Leave Cross Road? Progress must be saved by the game first.")
             .setNegativeButton("Stay", null).setPositiveButton("Leave") { _, _ -> finish() }.show()
     }
-    override fun onDestroy() { if (::web.isInitialized) web.destroy(); super.onDestroy() }
+    override fun onDestroy() { if (::web.isInitialized && !rendererGone) web.destroy(); super.onDestroy() }
 }
