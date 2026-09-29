@@ -1,6 +1,8 @@
 'use strict';
 // Bridge names are retained solely to satisfy the upstream bundle contract.
 const logs=[];
+// Compatibility flag prevents the bundle from also starting the old native iOS importer.
+globalThis.__pwaContent={ready:false,count:0,source:'android-r2'};
 globalThis.safariLog=line=>{
   const message=String(line);logs.push(message);if(logs.length>120)logs.shift();
   console.log('[CrossRoad]',message);
@@ -16,6 +18,7 @@ globalThis.__createStandaloneWorker=()=>{
 };
 globalThis.__remoteContentReady=fetch('./content-manifest.json').then(r=>{if(!r.ok)throw Error('Content manifest unavailable');return r.json();}).then(manifest=>{
   safariLog(`Android Content: ${manifest.files.length} remote files; ${manifest.version}`);
+  globalThis.__pwaContent={ready:true,count:manifest.files.length,source:'android-r2',version:manifest.version};
   return manifest.files.map(file=>({remoteAsset:true,name:file.path.split('/').pop(),webkitRelativePath:file.path,size:file.size,version:manifest.version,blockSize:manifest.blockSize}));
 });
 __remoteContentReady.catch(error=>safariLog(error.message));
