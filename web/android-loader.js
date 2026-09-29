@@ -1,0 +1,30 @@
+'use strict';
+// Bridge names are retained solely to satisfy the upstream bundle contract.
+const logs=[];
+globalThis.safariLog=line=>{
+  const message=String(line);logs.push(message);if(logs.length>120)logs.shift();
+  console.log('[CrossRoad]',message);
+};
+globalThis.__createStandaloneWorker=()=>{
+  const worker=new Worker(new URL('runtime-worker.js',document.baseURI));
+  worker.addEventListener('message',({data})=>{
+    if(data.type==='error')safariLog('FAIL: '+data.error);
+    else if(data.type==='log')safariLog(data.line);
+    else if(data.type==='ready'){safariLog('PASS: first runtime render loop');document.body.classList.add('playing');}
+  });
+  worker.addEventListener('error',event=>safariLog('Worker: '+event.message));return worker;
+};
+globalThis.__remoteContentReady=fetch('./content-manifest.json').then(r=>{if(!r.ok)throw Error('Content manifest unavailable');return r.json();}).then(manifest=>{
+  safariLog(`Android Content: ${manifest.files.length} remote files; ${manifest.version}`);
+  return manifest.files.map(file=>({remoteAsset:true,name:file.path.split('/').pop(),webkitRelativePath:file.path,size:file.size,version:manifest.version,blockSize:manifest.blockSize}));
+});
+__remoteContentReady.catch(error=>safariLog(error.message));
+addEventListener('error',event=>safariLog('Page: '+event.message));
+addEventListener('unhandledrejection',event=>safariLog('Error: '+(event.reason?.message||event.reason)));
+globalThis.crossroadShowDiagnostics=()=>{
+  document.dispatchEvent(new Event('crossroad-overlay'));
+  let dialog=document.querySelector('#android-diagnostics');
+  if(!dialog){dialog=document.createElement('dialog');dialog.id='android-diagnostics';const close=document.createElement('button');close.textContent='Close diagnostics';close.onclick=()=>dialog.close();dialog.append(close,document.createElement('pre'));document.body.append(dialog);}
+  dialog.querySelector('pre').textContent='Cross Road Android 0.1-poc\n'+navigator.userAgent+'\nVisibility: '+document.visibilityState+'\n'+logs.join('\n');
+  if(!dialog.open)dialog.showModal();
+};
