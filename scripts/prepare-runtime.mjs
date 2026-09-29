@@ -17,6 +17,15 @@ for(const [name,sha] of Object.entries(lock.files)) {
   })();
   if(createHash('sha256').update(bytes).digest('hex')!==sha)throw Error(`Upstream SHA-256 mismatch: ${name}`);
   let result=bytes;
+  if(name==='runtime-worker.js') {
+    // Android ANGLE reports the same precision mismatch differently from Firefox.
+    // Reuse the existing retry/normalizer only after this specific link failure.
+    const before='/not linkable between attached shaders/.test(t)';
+    const after='/not linkable between attached shaders|Uniforms with the same name but different type\\/precision/.test(t)';
+    const text=bytes.toString();
+    if(text.split(before).length!==2)throw Error('Shader precision retry changed upstream');
+    result=Buffer.from(text.replace(before,after));
+  }
   if(name==='app.js') {
     let text=bytes.toString();
     for(const [from,to] of [['"./audio-lifecycle.js"','"./android-audio.js"'],['"./mobile-runtime.js"','"./android-runtime.js"']]) {
