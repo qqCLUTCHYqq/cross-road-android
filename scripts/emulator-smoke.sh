@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 mkdir -p build/smoke
+trap 'adb logcat -d > build/smoke/final-logcat.txt || true; grep -E "CrossRoad|CONSOLE|AndroidRuntime" build/smoke/final-logcat.txt | tail -n 100 || true; adb exec-out screencap -p > build/smoke/final.png || true' EXIT
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb logcat -c
 adb shell am start -n io.github.qqclutchyqq.crossroad.android/.MainActivity --ez bootProbe true
