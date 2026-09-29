@@ -1,7 +1,6 @@
 package io.github.qqclutchyqq.crossroad.android
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
 import android.net.Uri
 import android.os.Bundle
@@ -11,11 +10,13 @@ import android.webkit.*
 import android.widget.Button
 import android.widget.LinearLayout
 import androidx.webkit.WebViewAssetLoader
+import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
 import java.io.File
 
-class MainActivity : Activity() {
+class MainActivity : ComponentActivity() {
     private lateinit var web: WebView
     private val host = "appassets.androidplatform.net"
     private val home = "https://appassets.androidplatform.net/assets/web/index.html"
@@ -24,6 +25,9 @@ class MainActivity : Activity() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() { confirmLeave() }
+        })
         val manifest = JSONObject(assets.open("web/content-manifest.json").bufferedReader().use { it.readText() })
         val array = manifest.getJSONArray("files")
         val files = (0 until array.length()).map { array.getJSONObject(it).let { f -> ContentFile(f.getString("path"), f.getLong("size")) } }
@@ -100,8 +104,7 @@ class MainActivity : Activity() {
         super.onResume()
         if (::web.isInitialized) { web.onResume(); web.evaluateJavascript("window.crossroadSetBackground?.(false)", null) }
     }
-    @Deprecated("Activity back compatibility")
-    override fun onBackPressed() {
+    private fun confirmLeave() {
         // Do not navigate to arbitrary history or silently discard an active game.
         AlertDialog.Builder(this).setMessage("Leave Cross Road? Progress must be saved by the game first.")
             .setNegativeButton("Stay", null).setPositiveButton("Leave") { _, _ -> finish() }.show()
