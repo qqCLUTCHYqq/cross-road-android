@@ -34,6 +34,11 @@ for attempt in $(seq 1 120); do
   if grep -q 'PASS: first runtime render loop' build/smoke/game-logcat.txt; then
     sleep 20
     adb exec-out screencap -p > build/smoke/game.png
+    adb logcat -d > build/smoke/game-logcat.txt
+    if grep -qE 'program link FAILED|shader compile FAILED' build/smoke/game-logcat.txt; then
+      echo 'FAIL: WebGL shader failure' >&2
+      exit 1
+    fi
     echo 'PASS: remote Content and game render loop; screenshot needs visual review'
     exit 0
   fi
